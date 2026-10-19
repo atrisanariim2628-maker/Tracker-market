@@ -4,270 +4,313 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0b1018">
-  <meta name="description" content="India macroeconomic and financial dashboard demo with static sample data.">
-  <title>India Macro &amp; Markets Dashboard</title>
+  <meta name="description" content="India macro and markets dashboard using published RBI and MoSPI data.">
+  <title>India Macro &amp; Markets</title>
   <style>
-    :root {
-      color-scheme: dark;
-      --page: #0b1018;
-      --panel: #111925;
-      --panel-raised: #151f2d;
-      --border: #263244;
-      --text: #edf2f8;
-      --muted: #9aa8b9;
-      --green: #48d597;
-      --blue: #72a7ff;
-      --amber: #efbd62;
-      --red: #ff8585;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      background: radial-gradient(ellipse at 50% -20%, #172337 0, var(--page) 56%);
-      color: var(--text);
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      line-height: 1.5;
-    }
-    button, select { font: inherit; }
-    .shell { max-width: 1440px; margin: 0 auto; padding: 28px clamp(16px, 3vw, 42px) 52px; }
-    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 28px; }
-    .brand { display: flex; align-items: center; gap: 13px; min-width: 0; }
-    .brand-mark { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 14px; background: #18362f; color: var(--green); font-size: 22px; }
-    .brand-name { color: var(--muted); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
-    .brand strong { display: block; font-size: 16px; letter-spacing: .01em; }
-    .snapshot { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 999px; color: #c7d2e1; background: #111925; font-size: 12px; white-space: nowrap; }
-    .snapshot::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 12px #efbd6280; }
-    .intro { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin: 0 0 22px; }
-    .eyebrow { margin: 0 0 7px; color: var(--green); font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
-    h1 { margin: 0; font-size: clamp(26px, 3vw, 36px); letter-spacing: -.04em; line-height: 1.14; }
-    .subtitle { margin: 9px 0 0; color: var(--muted); font-size: 14px; }
-    .select-wrap { display: grid; gap: 6px; min-width: 230px; color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
-    select { width: 100%; padding: 10px 36px 10px 12px; border: 1px solid var(--border); border-radius: 9px; color: var(--text); background: var(--panel); text-transform: none; letter-spacing: 0; font-size: 13px; }
-    .disclaimer { display: flex; align-items: flex-start; gap: 10px; margin: 0 0 20px; padding: 12px 14px; border: 1px solid #53442b; border-radius: 10px; color: #e7d4ae; background: #241e14; font-size: 12px; }
-    .disclaimer strong { color: #ffe1a3; }
-    .metrics { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
-    .metric, .panel { border: 1px solid var(--border); border-radius: 14px; background: linear-gradient(145deg, #141e2c, #101722); box-shadow: 0 12px 30px #00000015; }
-    .metric { padding: 16px 17px; min-height: 116px; }
-    .metric-label { display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: 12px; }
-    .metric-value { margin-top: 13px; font-size: clamp(21px, 2vw, 27px); font-weight: 700; letter-spacing: -.035em; }
-    .metric-change { margin-top: 3px; color: var(--green); font-size: 11px; }
-    .metric-change.neutral { color: var(--amber); }
-    .tabs { display: flex; gap: 6px; overflow-x: auto; margin: 24px 0 16px; padding: 5px; border: 1px solid var(--border); border-radius: 12px; background: #0e151f; scrollbar-width: thin; }
-    .tab { flex: 0 0 auto; padding: 10px 14px; border: 0; border-radius: 8px; color: #aab7c7; background: transparent; cursor: pointer; font-size: 13px; font-weight: 650; transition: background .15s ease, color .15s ease; }
-    .tab:hover { color: var(--text); background: #182331; }
-    .tab[aria-selected="true"] { color: #09150f; background: var(--green); }
-    .tab-panel[hidden] { display: none; }
-    .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin: 20px 0 14px; }
-    h2 { margin: 0; font-size: 19px; letter-spacing: -.02em; }
-    h3 { margin: 0; font-size: 14px; }
-    .section-note { color: var(--muted); font-size: 12px; }
-    .panel { padding: 18px; }
-    .panel-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
-    .tag { padding: 4px 8px; border: 1px solid #315340; border-radius: 999px; color: var(--green); background: #15281f; font-size: 10px; font-weight: 700; }
-    .table-wrap { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
-    th { padding: 10px 12px; color: #92a1b4; background: #0e151f; font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
-    td { padding: 11px 12px; border-bottom: 1px solid #222d3c; color: #dce4ed; }
-    tr:last-child td { border-bottom: 0; }
-    .number { font-variant-numeric: tabular-nums; }
-    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 14px; }
-    .chart { width: 100%; min-height: 215px; margin-top: 5px; }
-    .chart text { fill: #8292a7; font: 10px ui-sans-serif, system-ui, sans-serif; }
-    .chart .gridline { stroke: #2a3545; stroke-width: 1; stroke-dasharray: 3 5; }
-    .chart .axis { stroke: #435166; stroke-width: 1; }
-    .chart .line { fill: none; stroke: var(--blue); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
-    .chart .dot { fill: var(--blue); stroke: #111925; stroke-width: 3; }
-    .chart .bar { fill: #56cfa0; opacity: .88; }
-    .chart-legend { display: flex; align-items: center; gap: 7px; margin-top: 4px; color: var(--muted); font-size: 11px; }
-    .legend-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--blue); }
-    .legend-dot.green { background: var(--green); }
-    .two-col { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
-    .stack { display: grid; gap: 14px; }
-    .scenario-box { margin-top: 16px; padding: 16px; border: 1px solid #315340; border-radius: 11px; background: #13251e; }
-    .scenario-box.warning { border-color: #5c4c2c; background: #282115; }
-    .scenario-box.caution { border-color: #603737; background: #291a1d; }
-    .scenario-box p { margin: 7px 0 0; color: #c1cece; font-size: 13px; }
-    .scenario-label { color: var(--green); font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
-    .scenario-box.warning .scenario-label { color: var(--amber); }
-    .scenario-box.caution .scenario-label { color: var(--red); }
-    .status-pill { display: inline-flex; align-items: center; gap: 6px; color: #bfead5; white-space: nowrap; }
-    .status-pill.amber { color: #f3d493; }
-    .footer { display: flex; justify-content: space-between; gap: 14px; margin-top: 28px; padding-top: 16px; border-top: 1px solid var(--border); color: #7f8da0; font-size: 11px; }
-    @media (max-width: 980px) { .metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-    @media (max-width: 680px) {
-      .shell { padding-top: 18px; }
-      .intro { align-items: stretch; flex-direction: column; }
-      .select-wrap { min-width: 0; }
-      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .metric { padding: 14px; min-height: 106px; }
-      .grid-2, .two-col { grid-template-columns: 1fr; }
-      .snapshot { font-size: 10px; }
-      .section-heading { align-items: flex-start; flex-direction: column; }
-      .footer { flex-direction: column; }
-    }
-    @media (max-width: 390px) { .metrics { grid-template-columns: 1fr; } }
+    :root{color-scheme:dark;--page:#0b1018;--panel:#111925;--raised:#151f2d;--border:#263244;--text:#edf2f8;--muted:#9aa8b9;--green:#48d597;--blue:#72a7ff;--amber:#efbd62;--red:#ff8585}
+    *{box-sizing:border-box}
+    body{margin:0;background:radial-gradient(ellipse at 50% -20%,#172337 0,var(--page) 56%);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.5}
+    a{color:#91b9ff;text-underline-offset:3px}a:hover{color:#c2d7ff}
+    button{font:inherit}
+    .shell{max-width:1380px;margin:0 auto;padding:26px clamp(16px,3vw,42px) 50px}
+    .topbar,.brand,.snapshot,.intro,.metric-label,.panel-heading,.section-heading,.footer{display:flex;align-items:center}
+    .topbar,.intro,.section-heading,.footer{justify-content:space-between;gap:18px}
+    .topbar{margin-bottom:30px}
+    .brand{gap:12px}.brand-mark{display:grid;place-items:center;width:44px;height:44px;border-radius:14px;background:#18362f;color:var(--green);font-size:22px}
+    .brand-name{color:var(--muted);font-size:11px;letter-spacing:.13em;text-transform:uppercase}.brand strong{display:block;font-size:15px}
+    .snapshot{gap:8px;padding:8px 12px;border:1px solid var(--border);border-radius:999px;color:#c7d2e1;background:var(--panel);font-size:12px;white-space:nowrap}
+    .snapshot::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--amber);box-shadow:0 0 12px #efbd6280}
+    .snapshot.ready::before{background:var(--green);box-shadow:0 0 12px #48d59780}
+    .intro{align-items:end;margin-bottom:20px}.eyebrow{margin:0 0 7px;color:var(--green);font-size:11px;font-weight:750;letter-spacing:.14em;text-transform:uppercase}
+    h1{margin:0;font-size:clamp(27px,3vw,37px);letter-spacing:-.04em;line-height:1.12}.subtitle{margin:9px 0 0;color:var(--muted);font-size:14px}
+    .refresh{padding:10px 14px;border:1px solid #315340;border-radius:9px;color:#d8ffeb;background:#15281f;cursor:pointer;font-size:12px;font-weight:700}
+    .refresh:hover{background:#1b3528}.refresh:disabled{opacity:.55;cursor:wait}
+    .notice{display:flex;align-items:flex-start;gap:10px;margin:0 0 18px;padding:12px 14px;border:1px solid #53442b;border-radius:10px;color:#e7d4ae;background:#241e14;font-size:12px}
+    .notice strong{color:#ffe1a3}
+    .metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+    .metric,.panel{border:1px solid var(--border);border-radius:14px;background:linear-gradient(145deg,#141e2c,#101722);box-shadow:0 12px 30px #00000015}
+    .metric{padding:16px 17px;min-height:122px}.metric-label{gap:7px;color:var(--muted);font-size:12px}
+    .metric-value{margin-top:12px;font-size:clamp(21px,2vw,27px);font-weight:750;letter-spacing:-.035em;font-variant-numeric:tabular-nums}
+    .metric-sub{margin-top:3px;color:var(--muted);font-size:11px}
+    .tabs{display:flex;gap:6px;overflow-x:auto;margin:23px 0 16px;padding:5px;border:1px solid var(--border);border-radius:12px;background:#0e151f;scrollbar-width:thin}
+    .tab{flex:0 0 auto;padding:10px 14px;border:0;border-radius:8px;color:#aab7c7;background:transparent;cursor:pointer;font-size:13px;font-weight:650}
+    .tab:hover{color:var(--text);background:#182331}.tab[aria-selected=true]{color:#09150f;background:var(--green)}
+    .tab-panel[hidden]{display:none}
+    .section-heading{align-items:end;margin:20px 0 14px}.section-heading .eyebrow{margin-bottom:5px}
+    h2{margin:0;font-size:19px;letter-spacing:-.02em}h3{margin:0;font-size:14px}
+    .section-note{color:var(--muted);font-size:12px;text-align:right}
+    .panel{padding:18px}.panel-heading{justify-content:space-between;gap:12px;margin-bottom:12px}
+    .tag{padding:4px 8px;border:1px solid #315340;border-radius:999px;color:var(--green);background:#15281f;font-size:10px;font-weight:700;white-space:nowrap}
+    .grid-2,.two-col{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:14px}
+    .table-wrap{overflow-x:auto}
+    table{width:100%;border-collapse:collapse;text-align:left;font-size:12px}
+    th{padding:10px 12px;color:#92a1b4;background:#0e151f;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+    td{padding:11px 12px;border-bottom:1px solid #222d3c;color:#dce4ed}
+    tr:last-child td{border-bottom:0}.number{font-variant-numeric:tabular-nums}
+    .chart-panel{min-height:390px}.chart-frame{height:315px}
+    .source-note{margin:12px 0 0;color:var(--muted);font-size:11px}
+    .source-list{display:grid;gap:12px}
+    .source-card{padding:15px;border:1px solid var(--border);border-radius:11px;background:#101722}
+    .source-card h3{margin-bottom:5px}.source-card p{margin:0 0 8px;color:var(--muted);font-size:12px}
+    .source-meta{color:#aebacd;font-size:11px}
+    .disclosure{padding:15px;border:1px solid var(--border);border-radius:11px;color:#c7d2e1;background:#101722;font-size:13px}
+    .disclosure p{margin:0 0 10px}.disclosure p:last-child{margin-bottom:0}
+    .footer{margin-top:28px;padding-top:16px;border-top:1px solid var(--border);color:#7f8da0;font-size:11px}
+    @media(max-width:980px){.metrics{grid-template-columns:repeat(3,minmax(0,1fr))}}
+    @media(max-width:680px){.shell{padding-top:18px}.intro{align-items:stretch;flex-direction:column}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.metric{padding:14px;min-height:110px}.grid-2,.two-col{grid-template-columns:1fr}.snapshot{font-size:10px}.section-heading{align-items:flex-start;flex-direction:column}.section-note{text-align:left}.footer{align-items:flex-start;flex-direction:column}.chart-panel{min-height:360px}.chart-frame{height:280px}}
+    @media(max-width:390px){.metrics{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
   <main class="shell">
     <header class="topbar">
-      <div class="brand">
-        <div class="brand-mark" aria-hidden="true">₹</div>
-        <div><div class="brand-name">India markets</div><strong>Macro intelligence</strong></div>
-      </div>
-      <div class="snapshot">Static snapshot · sample values</div>
+      <div class="brand"><div class="brand-mark" aria-hidden="true">₹</div><div><div class="brand-name">India markets</div><strong>Macro intelligence</strong></div></div>
+      <div class="snapshot" id="feed-status" role="status" aria-live="polite">Connecting to official sources…</div>
     </header>
 
     <section class="intro" aria-labelledby="page-title">
-      <div>
-        <p class="eyebrow">Economy · Policy · Markets</p>
-        <h1 id="page-title">India Financial &amp; Macro Dashboard</h1>
-        <p class="subtitle">A visual overview of the indicators and scenarios in the supplied tracker.</p>
-      </div>
-      <label class="select-wrap" for="view-mode">Dashboard view
-        <select id="view-mode">
-          <option>Market overview</option>
-          <option>Predictive analytics &amp; decision engine</option>
-        </select>
-      </label>
+      <div><p class="eyebrow">Economy · Policy · Markets</p><h1 id="page-title">India Financial &amp; Macro Dashboard</h1><p class="subtitle">Published RBI market data and the latest MoSPI GDP and CPI releases.</p></div>
+      <button class="refresh" id="refresh" type="button">↻ Refresh data</button>
     </section>
 
-    <aside class="disclaimer" aria-label="Data note">
-      <span aria-hidden="true">ⓘ</span>
-      <span><strong>Sample data:</strong> values and outlook text are hard-coded examples from the original Python file. This page has no live market feed or connected prediction model; verify figures with official sources before relying on them.</span>
-    </aside>
+    <aside class="notice"><span aria-hidden="true">ⓘ</span><span><strong>Data timing:</strong> The dashboard checks official sources on load and every five minutes. RBI market figures reflect the timestamp shown by RBI; GDP and CPI update when MoSPI publishes a new release. Embedded charts may be delayed according to the provider’s market-data permissions.</span></aside>
 
-    <section class="metrics" aria-label="Headline indicators">
-      <article class="metric"><div class="metric-label">🏦 RBI repo rate</div><div class="metric-value">5.50%</div><div class="metric-change neutral">+0.25% · sample note</div></article>
-      <article class="metric"><div class="metric-label">📈 FY GDP growth</div><div class="metric-value">7.1%</div><div class="metric-change">FY27 forecast · sample</div></article>
-      <article class="metric"><div class="metric-label">📊 10Y G-Sec yield</div><div class="metric-value">7.36%</div><div class="metric-change neutral">+0.04% WoW · sample</div></article>
-      <article class="metric"><div class="metric-label">🧺 CPI inflation</div><div class="metric-value">4.2%</div><div class="metric-change">Sample value</div></article>
-      <article class="metric"><div class="metric-label">💱 USD / INR</div><div class="metric-value">83.65</div><div class="metric-change">−0.12 today · sample</div></article>
+    <section class="metrics" aria-label="Latest official indicators">
+      <article class="metric"><div class="metric-label">🏦 RBI repo rate</div><div class="metric-value" id="repo-card">—</div><div class="metric-sub" id="repo-sub">Waiting for RBI</div></article>
+      <article class="metric"><div class="metric-label">📈 Real GDP growth</div><div class="metric-value" id="gdp-card">—</div><div class="metric-sub" id="gdp-sub">Waiting for MoSPI</div></article>
+      <article class="metric"><div class="metric-label">🧺 CPI inflation</div><div class="metric-value" id="cpi-card">—</div><div class="metric-sub" id="cpi-sub">Waiting for MoSPI</div></article>
+      <article class="metric"><div class="metric-label">💱 USD / INR</div><div class="metric-value" id="fx-card">—</div><div class="metric-sub" id="fx-sub">Waiting for RBI / FBIL</div></article>
+      <article class="metric"><div class="metric-label">📊 Government bond yield</div><div class="metric-value" id="yield-card">—</div><div class="metric-sub" id="yield-sub">Waiting for RBI</div></article>
     </section>
 
     <nav class="tabs" role="tablist" aria-label="Dashboard sections">
-      <button class="tab" id="tab-macro" role="tab" aria-selected="true" aria-controls="panel-macro">Macro &amp; policy rates</button>
-      <button class="tab" id="tab-tax" role="tab" aria-selected="false" aria-controls="panel-tax" tabindex="-1">Tax, GST &amp; duties</button>
-      <button class="tab" id="tab-markets" role="tab" aria-selected="false" aria-controls="panel-markets" tabindex="-1">Funds &amp; bonds</button>
-      <button class="tab" id="tab-outlook" role="tab" aria-selected="false" aria-controls="panel-outlook" tabindex="-1">Economic scenarios</button>
+      <button class="tab" id="tab-overview" role="tab" aria-selected="true" aria-controls="panel-overview">Macro &amp; markets</button>
+      <button class="tab" id="tab-sources" role="tab" aria-selected="false" aria-controls="panel-sources" tabindex="-1">Sources &amp; timing</button>
+      <button class="tab" id="tab-reference" role="tab" aria-selected="false" aria-controls="panel-reference" tabindex="-1">Official references</button>
     </nav>
 
-    <section class="tab-panel" id="panel-macro" role="tabpanel" aria-labelledby="tab-macro">
-      <div class="section-heading"><div><p class="eyebrow">Central bank</p><h2>RBI key policy rates</h2></div><div class="section-note">Values shown as supplied in the Python tracker</div></div>
-      <div class="panel">
+    <section class="tab-panel" id="panel-overview" role="tabpanel" aria-labelledby="tab-overview">
+      <div class="section-heading"><div><p class="eyebrow">Central bank</p><h2>RBI policy rates</h2></div><div class="section-note" id="rbi-updated">Official RBI source</div></div>
+      <article class="panel">
         <div class="table-wrap"><table>
-          <thead><tr><th>Indicator</th><th>Rate</th><th>Trend / stance</th><th>Last revised</th></tr></thead>
+          <thead><tr><th>Indicator</th><th>Rate</th><th>RBI source page updated</th></tr></thead>
           <tbody>
-            <tr><td>Repo Rate</td><td class="number">5.50%</td><td>Neutral / Tightening</td><td>October 2026</td></tr>
-            <tr><td>Reverse Repo Rate</td><td class="number">3.35%</td><td>Accommodative</td><td>June 2024</td></tr>
-            <tr><td>Standing Deposit Facility (SDF)</td><td class="number">5.25%</td><td>Neutral</td><td>October 2024</td></tr>
-            <tr><td>Cash Reserve Ratio (CRR)</td><td class="number">4.50%</td><td>Stable</td><td>February 2023</td></tr>
-            <tr><td>Statutory Liquidity Ratio (SLR)</td><td class="number">18.00%</td><td>Stable</td><td>June 2020</td></tr>
-            <tr><td>Bank Rate</td><td class="number">5.75%</td><td>Tightening</td><td>October 2026</td></tr>
+            <tr><td>Policy Repo Rate</td><td class="number" data-rbi-rate="repo">Loading…</td><td data-rbi-updated>—</td></tr>
+            <tr><td>Standing Deposit Facility</td><td class="number" data-rbi-rate="sdf">Loading…</td><td data-rbi-updated>—</td></tr>
+            <tr><td>Marginal Standing Facility</td><td class="number" data-rbi-rate="msf">Loading…</td><td data-rbi-updated>—</td></tr>
+            <tr><td>Bank Rate</td><td class="number" data-rbi-rate="bank">Loading…</td><td data-rbi-updated>—</td></tr>
+            <tr><td>Fixed Reverse Repo Rate</td><td class="number" data-rbi-rate="reverseRepo">Loading…</td><td data-rbi-updated>—</td></tr>
+            <tr><td>Cash Reserve Ratio (CRR)</td><td class="number" data-rbi-rate="crr">Loading…</td><td data-rbi-updated>—</td></tr>
+            <tr><td>Statutory Liquidity Ratio (SLR)</td><td class="number" data-rbi-rate="slr">Loading…</td><td data-rbi-updated>—</td></tr>
           </tbody>
         </table></div>
-      </div>
+      </article>
+
       <div class="grid-2">
         <article class="panel">
-          <div class="panel-heading"><h3>Quarterly GDP growth trend</h3><span class="tag">Percent</span></div>
-          <svg class="chart" viewBox="0 0 540 235" role="img" aria-label="Sample quarterly GDP growth line chart">
-            <line class="gridline" x1="46" y1="38" x2="520" y2="38"/><line class="gridline" x1="46" y1="88" x2="520" y2="88"/><line class="gridline" x1="46" y1="138" x2="520" y2="138"/><line class="axis" x1="46" y1="188" x2="520" y2="188"/>
-            <text x="9" y="42">7.5</text><text x="9" y="92">7.0</text><text x="9" y="142">6.5</text><text x="9" y="192">6.0</text>
-            <polyline class="line" points="55,118 120,138 185,168 250,48 315,108 380,88 445,78 510,68"/>
-            <circle class="dot" cx="55" cy="118" r="5"/><circle class="dot" cx="120" cy="138" r="5"/><circle class="dot" cx="185" cy="168" r="5"/><circle class="dot" cx="250" cy="48" r="5"/><circle class="dot" cx="315" cy="108" r="5"/><circle class="dot" cx="380" cy="88" r="5"/><circle class="dot" cx="445" cy="78" r="5"/><circle class="dot" cx="510" cy="68" r="5"/>
-            <text x="43" y="212">Q1 FY25</text><text x="108" y="212">Q2 FY25</text><text x="173" y="212">Q3 FY25</text><text x="238" y="212">Q4 FY25</text><text x="303" y="212">Q1 FY26</text><text x="368" y="212">Q2 FY26</text><text x="433" y="212">Q3 FY26</text><text x="487" y="212">Q4*</text>
-          </svg>
-          <div class="chart-legend"><span class="legend-dot"></span> GDP growth · sample series</div>
+          <div class="panel-heading"><h3>RBI market snapshot</h3><span class="tag">Latest published</span></div>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Market indicator</th><th>Value</th><th>As of</th></tr></thead>
+            <tbody>
+              <tr><td>Nifty 50</td><td class="number" id="nifty-value">—</td><td id="market-date">—</td></tr>
+              <tr><td>S&amp;P BSE Sensex</td><td class="number" id="sensex-value">—</td><td data-market-date>—</td></tr>
+              <tr><td id="gsec-label">Government security</td><td class="number" id="gsec-value">—</td><td id="yield-date">—</td></tr>
+              <tr><td>USD / INR reference rate</td><td class="number" id="fx-value">—</td><td id="fx-date">—</td></tr>
+            </tbody>
+          </table></div>
+          <p class="source-note">Rates and market closes are fetched from the <a href="https://www.rbi.org.in/home.aspx" target="_blank" rel="noopener">RBI current rates page</a>; USD/INR is the FBIL reference rate cited there.</p>
         </article>
+
         <article class="panel">
-          <div class="panel-heading"><h3>CPI inflation trend</h3><span class="tag">Percent</span></div>
-          <svg class="chart" viewBox="0 0 540 235" role="img" aria-label="Sample quarterly CPI inflation bar chart">
-            <line class="gridline" x1="46" y1="38" x2="520" y2="38"/><line class="gridline" x1="46" y1="75" x2="520" y2="75"/><line class="gridline" x1="46" y1="113" x2="520" y2="113"/><line class="gridline" x1="46" y1="150" x2="520" y2="150"/><line class="axis" x1="46" y1="188" x2="520" y2="188"/>
-            <text x="9" y="42">5.5</text><text x="9" y="79">5.0</text><text x="9" y="117">4.5</text><text x="9" y="154">4.0</text><text x="9" y="192">3.5</text>
-            <rect class="bar" x="58" y="68" width="34" height="120" rx="4"/><rect class="bar" x="117" y="90" width="34" height="98" rx="4"/><rect class="bar" x="176" y="128" width="34" height="60" rx="4"/><rect class="bar" x="235" y="173" width="34" height="15" rx="4"/><rect class="bar" x="294" y="106" width="34" height="82" rx="4"/><rect class="bar" x="353" y="143" width="34" height="45" rx="4"/><rect class="bar" x="412" y="158" width="34" height="30" rx="4"/><rect class="bar" x="471" y="136" width="34" height="52" rx="4"/>
-            <text x="49" y="212">Q1 FY25</text><text x="108" y="212">Q2 FY25</text><text x="167" y="212">Q3 FY25</text><text x="226" y="212">Q4 FY25</text><text x="285" y="212">Q1 FY26</text><text x="344" y="212">Q2 FY26</text><text x="403" y="212">Q3 FY26</text><text x="462" y="212">Q4*</text>
-          </svg>
-          <div class="chart-legend"><span class="legend-dot green"></span> CPI inflation · sample series</div>
+          <div class="panel-heading"><h3>Latest MoSPI releases</h3><span class="tag">Official statistics</span></div>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Indicator</th><th>Published value</th><th>Reference period</th></tr></thead>
+            <tbody>
+              <tr><td>Real GDP growth rate</td><td class="number" id="gdp-value">—</td><td id="gdp-period">—</td></tr>
+              <tr><td>CPI-based inflation</td><td class="number" id="cpi-value">—</td><td id="cpi-period">—</td></tr>
+            </tbody>
+          </table></div>
+          <p class="source-note">These are release-based statistics, not continuously updated market prices. See the <a href="https://mospi.gov.in/themes/product/6-gross-domestic-product" target="_blank" rel="noopener">MoSPI GDP page</a> and <a href="https://mospi.gov.in/themes/product/9-consumer-price-index-cpi" target="_blank" rel="noopener">MoSPI CPI page</a>.</p>
+        </article>
+      </div>
+
+      <div class="grid-2">
+        <article class="panel chart-panel">
+          <div class="panel-heading"><h3>Nifty 50 chart</h3><span class="tag">TradingView</span></div>
+          <div class="chart-frame"><div class="tradingview-widget-container" style="height:100%;width:100%"><div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div><div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/symbols/NSE-NIFTY/" rel="noopener nofollow" target="_blank">NIFTY chart</a> by TradingView</div><script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>{"autosize":true,"symbol":"NSE:NIFTY","interval":"D","timezone":"Asia/Kolkata","theme":"dark","style":"1","withdateranges":true,"hide_side_toolbar":true,"allow_symbol_change":false,"save_image":false,"calendar":false,"locale":"en","backgroundColor":"#111925","gridColor":"rgba(42,53,69,0.45)","support_host":"https://www.tradingview.com"}</script></div></div>
+          <p class="source-note">Chart feed availability and delay are determined by TradingView and the exchange.</p>
+        </article>
+        <article class="panel chart-panel">
+          <div class="panel-heading"><h3>USD / INR chart</h3><span class="tag">TradingView</span></div>
+          <div class="chart-frame"><div class="tradingview-widget-container" style="height:100%;width:100%"><div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div><div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/symbols/FX_IDC-USDINR/" rel="noopener nofollow" target="_blank">USDINR chart</a> by TradingView</div><script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>{"autosize":true,"symbol":"FX_IDC:USDINR","interval":"D","timezone":"Asia/Kolkata","theme":"dark","style":"1","withdateranges":true,"hide_side_toolbar":true,"allow_symbol_change":false,"save_image":false,"calendar":false,"locale":"en","backgroundColor":"#111925","gridColor":"rgba(42,53,69,0.45)","support_host":"https://www.tradingview.com"}</script></div></div>
+          <p class="source-note">RBI’s FBIL value above is a published reference rate; this chart has its own provider feed.</p>
         </article>
       </div>
     </section>
 
-    <section class="tab-panel" id="panel-tax" role="tabpanel" aria-labelledby="tab-tax" hidden>
-      <div class="section-heading"><div><p class="eyebrow">Reference tables</p><h2>Tax slabs &amp; GST categories</h2></div><div class="section-note">Illustrative values from the supplied tracker; check current rules</div></div>
+    <section class="tab-panel" id="panel-sources" role="tabpanel" aria-labelledby="tab-sources" hidden>
+      <div class="section-heading"><div><p class="eyebrow">Where the numbers come from</p><h2>Sources &amp; update timing</h2></div><div class="section-note" id="last-checked">Waiting for first source check</div></div>
       <div class="two-col">
-        <article class="panel"><div class="panel-heading"><h3>Goods and Services Tax (GST)</h3><span class="tag">Sample categories</span></div><div class="table-wrap"><table><thead><tr><th>Slab</th><th>Category examples</th></tr></thead><tbody>
-          <tr><td class="number">0% (Nil)</td><td>Unbranded food grains, milk, salt</td></tr><tr><td class="number">5%</td><td>Edible oil, tea, sugar, transport</td></tr><tr><td class="number">12%</td><td>Processed food, computers, books</td></tr><tr><td class="number">18%</td><td>Toothpaste, IT services, capital goods</td></tr><tr><td class="number">28%</td><td>Automobiles, luxury items, aerated drinks</td></tr>
-        </tbody></table></div></article>
-        <article class="panel"><div class="panel-heading"><h3>Income tax · new regime</h3><span class="tag">Sample slabs</span></div><div class="table-wrap"><table><thead><tr><th>Income range</th><th>Tax rate</th></tr></thead><tbody>
-          <tr><td>Up to ₹3,00,000</td><td>Nil</td></tr><tr><td>₹3,00,001 – ₹7,00,000</td><td>5%</td></tr><tr><td>₹7,00,001 – ₹10,00,000</td><td>10%</td></tr><tr><td>₹10,00,001 – ₹12,00,000</td><td>15%</td></tr><tr><td>₹12,00,001 – ₹15,00,000</td><td>20%</td></tr><tr><td>Above ₹15,00,000</td><td>30%</td></tr>
-        </tbody></table></div></article>
+        <article class="panel source-list">
+          <div class="source-card"><h3><a href="https://www.rbi.org.in/home.aspx" target="_blank" rel="noopener">Reserve Bank of India</a></h3><p>Policy rates, reserve ratios, the government-security yields shown on the RBI page, Sensex and Nifty closes.</p><div class="source-meta">Checked: <span data-source-checked="rbi">—</span> · Page date: <span data-rbi-updated>—</span></div></div>
+          <div class="source-card"><h3><a href="https://www.fbil.org.in/" target="_blank" rel="noopener">FBIL reference rate via RBI</a></h3><p>USD/INR reference rate shown on RBI’s site. This is a daily reference, not a streaming spot quote.</p><div class="source-meta">Source timestamp: <span id="fx-date-source">—</span></div></div>
+          <div class="source-card"><h3><a href="https://mospi.gov.in/themes/product/6-gross-domestic-product" target="_blank" rel="noopener">MoSPI GDP</a></h3><p>Latest published real GDP growth rate and reference period.</p><div class="source-meta">Checked: <span data-source-checked="gdp">—</span> · Period: <span id="gdp-period-source">—</span></div></div>
+          <div class="source-card"><h3><a href="https://mospi.gov.in/themes/product/9-consumer-price-index-cpi" target="_blank" rel="noopener">MoSPI CPI</a></h3><p>Latest published CPI-based annual inflation rate and reference period.</p><div class="source-meta">Checked: <span data-source-checked="cpi">—</span> · Period: <span id="cpi-period-source">—</span></div></div>
+        </article>
+        <article class="panel disclosure">
+          <div class="panel-heading"><h3>How often does “live” mean?</h3><span class="tag">Read before use</span></div>
+          <p>The page requests official feeds at load and every five minutes. A five-minute refresh does not make the original publisher release data more often.</p>
+          <p>RBI publishes the USD/INR reference rate around 1 p.m. on business days and labels equity/bond data with their own “as on” dates. CPI is released monthly; GDP is released quarterly. Those figures can be current official data while still being older than today.</p>
+          <p>TradingView embeds market charts, but their exchange data may be delayed unless the viewer has the required market-data entitlement. This page does not claim tick-by-tick NSE access.</p>
+          <p>If a source is unavailable or its value cannot be read, the page shows “Unavailable” instead of reusing an old example.</p>
+        </article>
       </div>
     </section>
 
-    <section class="tab-panel" id="panel-markets" role="tabpanel" aria-labelledby="tab-markets" hidden>
-      <div class="section-heading"><div><p class="eyebrow">Market benchmarks</p><h2>Mutual funds &amp; fixed income</h2></div><div class="section-note">Returns and yields are hard-coded examples, not current quotes</div></div>
+    <section class="tab-panel" id="panel-reference" role="tabpanel" aria-labelledby="tab-reference" hidden>
+      <div class="section-heading"><div><p class="eyebrow">Official reference data</p><h2>Tax, funds &amp; forecasts</h2></div><div class="section-note">Open the publisher for the current rules or data</div></div>
       <div class="two-col">
-        <article class="panel"><div class="panel-heading"><h3>Fund categories</h3><span class="tag">3Y return · sample</span></div><div class="table-wrap"><table><thead><tr><th>Category</th><th>Benchmark</th><th>Avg 3Y return</th></tr></thead><tbody>
-          <tr><td>Large Cap</td><td>Nifty 50</td><td class="number">14.2%</td></tr><tr><td>Mid Cap</td><td>Nifty Midcap 150</td><td class="number">22.5%</td></tr><tr><td>Small Cap</td><td>Nifty Smallcap 250</td><td class="number">26.8%</td></tr><tr><td>Flexi Cap</td><td>Nifty 500</td><td class="number">18.4%</td></tr><tr><td>Liquid Funds</td><td>CRISIL Liquid Fund</td><td class="number">7.1%</td></tr><tr><td>Arbitrage Funds</td><td>Nifty Arbitrage</td><td class="number">7.6%</td></tr>
-        </tbody></table></div></article>
-        <article class="panel"><div class="panel-heading"><h3>Fixed-income instruments</h3><span class="tag">Yield · sample</span></div><div class="table-wrap"><table><thead><tr><th>Instrument</th><th>Yield / rate</th><th>Risk profile</th></tr></thead><tbody>
-          <tr><td>10-Year Government Bond</td><td class="number">7.36%</td><td>Sovereign</td></tr><tr><td>Corporate AAA Bonds (5Y)</td><td class="number">7.85%</td><td>Very low</td></tr><tr><td>Tax-Free Bonds (PSU)</td><td class="number">5.50%</td><td>Low</td></tr><tr><td>RBI Floating Rate Savings Bonds</td><td class="number">8.05%</td><td>Sovereign</td></tr><tr><td>LIC Endowment Plan (Avg Yield)</td><td class="number">6.00%</td><td>Low / guaranteed*</td></tr>
-        </tbody></table></div></article>
+        <article class="panel source-list">
+          <div class="source-card"><h3><a href="https://cbic-gst.gov.in/gst-goods-services-rates.html" target="_blank" rel="noopener">CBIC GST rates</a></h3><p>Official goods and services tax rate reference. Tax treatment depends on the exact item, service and applicable notification.</p></div>
+          <div class="source-card"><h3><a href="https://www.incometax.gov.in/iec/foportal/" target="_blank" rel="noopener">Income Tax Department</a></h3><p>Official portal for current tax rules, forms and taxpayer services.</p></div>
+          <div class="source-card"><h3><a href="https://www.amfiindia.com/net-asset-value/nav-download" target="_blank" rel="noopener">AMFI NAV downloads</a></h3><p>Official mutual-fund NAV files. The previous generic category-return examples were removed because they were not linked to specific schemes or a verified return series.</p></div>
+        </article>
+        <article class="panel source-list">
+          <div class="source-card"><h3><a href="https://www.rbi.org.in/home.aspx" target="_blank" rel="noopener">RBI policy statements &amp; outlook</a></h3><p>Use the RBI’s latest monetary policy statement and report for policy forecasts. Forecasts are estimates, not observed live data.</p></div>
+          <div class="source-card"><h3><a href="https://mospi.gov.in/themes/product/6-gross-domestic-product" target="_blank" rel="noopener">MoSPI national accounts</a></h3><p>Official GDP releases. This dashboard displays the latest real GDP growth statistic it can read from the published page.</p></div>
+          <div class="source-card"><h3><a href="https://mospi.gov.in/themes/product/9-consumer-price-index-cpi" target="_blank" rel="noopener">MoSPI consumer price index</a></h3><p>Official CPI releases. This dashboard displays the latest CPI-based inflation statistic it can read from the published page.</p></div>
+        </article>
       </div>
+      <p class="source-note">The old tax tables, fund-return averages, credit/PMI/forex examples, and scenario text were removed because they were hard-coded and not connected to current sources.</p>
     </section>
 
-    <section class="tab-panel" id="panel-outlook" role="tabpanel" aria-labelledby="tab-outlook" hidden>
-      <div class="section-heading"><div><p class="eyebrow">Scenario explorer</p><h2>Economic indicators &amp; policy outlook</h2></div><div class="section-note">Static scenarios from the original tracker; no model is connected</div></div>
-      <div class="panel">
-        <div class="panel-heading"><h3>Indicator snapshot</h3><span class="tag">Sample values</span></div>
-        <div class="table-wrap"><table><thead><tr><th>Economic indicator</th><th>Value</th><th>Signal status</th></tr></thead><tbody>
-          <tr><td>Credit Growth (YoY)</td><td class="number">14.2%</td><td><span class="status-pill">● Expansion</span></td></tr><tr><td>Deposit Growth (YoY)</td><td class="number">11.1%</td><td><span class="status-pill amber">● Moderate</span></td></tr><tr><td>PMI Manufacturing</td><td class="number">57.8</td><td><span class="status-pill">● Strong expansion</span></td></tr><tr><td>PMI Services</td><td class="number">60.2</td><td><span class="status-pill">● Robust</span></td></tr><tr><td>Forex Reserves</td><td class="number">$682B</td><td><span class="status-pill">● All-time high</span></td></tr><tr><td>GST Collections (Monthly Avg)</td><td class="number">₹1.85 Lakh Cr</td><td><span class="status-pill">● Strong tax buoyancy</span></td></tr>
-        </tbody></table></div>
-        <div class="grid-2" style="align-items:end">
-          <label class="select-wrap" for="scenario">Monetary policy scenario
-            <select id="scenario"><option value="hold">Baseline: repo rate hold at 5.50%</option><option value="hawkish">Hawkish pivot: +25 bps rate hike</option><option value="dovish">Dovish pivot: −25 bps rate cut</option></select>
-          </label>
-          <div id="scenario-output" class="scenario-box" aria-live="polite"><div class="scenario-label">Illustrative outlook</div><p>Steady credit expansion continues. Real estate and corporate capex remain resilient.</p></div>
-        </div>
-      </div>
-    </section>
-
-    <footer class="footer"><span>India Macro &amp; Markets · Dashboard demo</span><span>* Figures and labels are reproduced from supplied code and have not been independently verified.</span></footer>
+    <footer class="footer"><span>India Macro &amp; Markets · official-source dashboard</span><span>Information only. Check source timestamps and publisher pages before making decisions.</span></footer>
   </main>
   <script>
-    const tabs = [...document.querySelectorAll('[role="tab"]')];
-    const panels = [...document.querySelectorAll('[role="tabpanel"]')];
+    const tabs = Array.from(document.querySelectorAll('[role="tab"]'));
+    const panels = Array.from(document.querySelectorAll('[role="tabpanel"]'));
     function activateTab(tab) {
-      tabs.forEach((item) => {
+      tabs.forEach(function (item) {
         const active = item === tab;
-        item.setAttribute('aria-selected', String(active));
+        item.setAttribute("aria-selected", String(active));
         item.tabIndex = active ? 0 : -1;
       });
-      panels.forEach((panel) => { panel.hidden = panel.id !== tab.getAttribute('aria-controls'); });
+      panels.forEach(function (panel) {
+        panel.hidden = panel.id !== tab.getAttribute("aria-controls");
+      });
     }
-    tabs.forEach((tab, index) => {
-      tab.addEventListener('click', () => activateTab(tab));
-      tab.addEventListener('keydown', (event) => {
-        if (!['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(event.key)) return;
+    tabs.forEach(function (tab, index) {
+      tab.addEventListener("click", function () { activateTab(tab); });
+      tab.addEventListener("keydown", function (event) {
+        if (!["ArrowRight", "ArrowLeft", "Home", "End"].includes(event.key)) return;
         event.preventDefault();
-        const next = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : (index + (event.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length;
+        const next = event.key === "Home" ? 0 : event.key === "End" ? tabs.length - 1 : (index + (event.key === "ArrowRight" ? 1 : tabs.length - 1)) % tabs.length;
         tabs[next].focus();
         activateTab(tabs[next]);
       });
     });
-    const scenario = document.querySelector('#scenario');
-    const output = document.querySelector('#scenario-output');
-    const outlooks = {
-      hold: { className: '', text: 'Steady credit expansion continues. Real estate and corporate capex remain resilient.' },
-      hawkish: { className: 'warning', text: 'Cost of capital increases. The original tracker describes a possible short-term correction in high-multiple growth stocks.' },
-      dovish: { className: 'caution', text: 'Liquidity easing may support risk appetite. This is a static scenario description, not a forecast.' }
-    };
-    scenario.addEventListener('change', () => {
-      const outlook = outlooks[scenario.value];
-      output.className = `scenario-box ${outlook.className}`;
-      output.innerHTML = `<div class="scenario-label">Illustrative outlook</div><p>${outlook.text}</p>`;
-    });
+
+    const numberFormat = new Intl.NumberFormat("en-IN", { maximumFractionDigits: 2 });
+    const timeFormat = new Intl.DateTimeFormat("en-IN", { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit", hour12: true });
+    function displayNumber(value, decimals) {
+      if (typeof value !== "number" || !Number.isFinite(value)) return "Unavailable";
+      return new Intl.NumberFormat("en-IN", { minimumFractionDigits: decimals, maximumFractionDigits: decimals }).format(value);
+    }
+    function put(id, text) {
+      const element = document.getElementById(id);
+      if (element) element.textContent = text == null || text === "" ? "Unavailable" : text;
+    }
+    function putAll(selector, text) {
+      document.querySelectorAll(selector).forEach(function (element) {
+        element.textContent = text == null || text === "" ? "Unavailable" : text;
+      });
+    }
+    function rate(value) {
+      return typeof value === "number" && Number.isFinite(value) ? displayNumber(value, 2) + "%" : "Unavailable";
+    }
+    function checkedTime(iso) {
+      if (!iso) return "Unavailable";
+      try { return timeFormat.format(new Date(iso)) + " IST"; } catch (_) { return "Unavailable"; }
+    }
+    function render(data) {
+      const rbi = data.rbi;
+      const gdp = data.gdp;
+      const cpi = data.cpi;
+      const rbiDate = rbi && rbi.updated ? rbi.updated : "Unavailable";
+      const policy = rbi && rbi.policy ? rbi.policy : {};
+      const market = rbi && rbi.market ? rbi.market : {};
+      const fx = rbi && rbi.fx ? rbi.fx : {};
+
+      put("repo-card", rate(policy.repo));
+      put("repo-sub", rbiDate === "Unavailable" ? "Official RBI value unavailable" : "RBI page: " + rbiDate);
+      put("gdp-card", typeof gdp?.value === "number" ? displayNumber(gdp.value, 1) + "%" : "Unavailable");
+      put("gdp-sub", gdp?.period || "Latest MoSPI period unavailable");
+      put("cpi-card", typeof cpi?.value === "number" ? displayNumber(cpi.value, 2) + "%" : "Unavailable");
+      put("cpi-sub", cpi?.period || "Latest MoSPI period unavailable");
+      put("fx-card", displayNumber(fx.usdInr, 4));
+      put("fx-sub", rbi?.fxAsOf || "RBI / FBIL reference unavailable");
+      put("yield-card", typeof market.gsecYield === "number" ? displayNumber(market.gsecYield, 2) + "%" : "Unavailable");
+      put("yield-sub", market.gsecLabel || "RBI government security yield unavailable");
+
+      document.querySelectorAll("[data-rbi-rate]").forEach(function (cell) {
+        cell.textContent = rate(policy[cell.dataset.rbiRate]);
+      });
+      putAll("[data-rbi-updated]", rbiDate);
+      put("rbi-updated", rbiDate === "Unavailable" ? "RBI source unavailable" : "RBI page date: " + rbiDate);
+
+      put("nifty-value", displayNumber(market.nifty, 2));
+      put("sensex-value", displayNumber(market.sensex, 2));
+      put("market-date", rbi?.marketAsOf || "Unavailable");
+      putAll("[data-market-date]", rbi?.marketAsOf || "Unavailable");
+      put("gsec-label", market.gsecLabel || "Government security");
+      put("gsec-value", typeof market.gsecYield === "number" ? displayNumber(market.gsecYield, 2) + "%" : "Unavailable");
+      put("yield-date", rbi?.yieldAsOf || "Unavailable");
+      put("fx-value", displayNumber(fx.usdInr, 4));
+      put("fx-date", rbi?.fxAsOf || "Unavailable");
+      put("fx-date-source", rbi?.fxAsOf || "Unavailable");
+
+      put("gdp-value", typeof gdp?.value === "number" ? displayNumber(gdp.value, 1) + "%" : "Unavailable");
+      put("gdp-period", gdp?.period || "Unavailable");
+      put("gdp-period-source", gdp?.period || "Unavailable");
+      put("cpi-value", typeof cpi?.value === "number" ? displayNumber(cpi.value, 2) + "%" : "Unavailable");
+      put("cpi-period", cpi?.period || "Unavailable");
+      put("cpi-period-source", cpi?.period || "Unavailable");
+
+      const checked = checkedTime(data.checkedAt);
+      put("last-checked", "Source check: " + checked);
+      document.querySelectorAll("[data-source-checked]").forEach(function (node) {
+        const key = node.dataset.sourceChecked;
+        node.textContent = checked;
+        if (data.sources && data.sources[key] && !data.sources[key].ok) node.textContent = "Unavailable";
+      });
+
+      const anyValue = rbi && (typeof policy.repo === "number" || typeof fx.usdInr === "number" || typeof market.nifty === "number");
+      const status = document.getElementById("feed-status");
+      status.textContent = anyValue ? "Official sources connected · checked " + checked : "Official feeds unavailable · retrying";
+      status.classList.toggle("ready", Boolean(anyValue));
+    }
+
+    async function loadData() {
+      const button = document.getElementById("refresh");
+      button.disabled = true;
+      try {
+        const response = await fetch("/api/live", { cache: "no-store" });
+        if (!response.ok) throw new Error("Live data endpoint returned " + response.status);
+        render(await response.json());
+      } catch (error) {
+        const status = document.getElementById("feed-status");
+        status.textContent = "Feed unavailable · retrying";
+        status.classList.remove("ready");
+        document.querySelectorAll(".metric-value").forEach(function (node) {
+          if (node.textContent === "—") node.textContent = "Unavailable";
+        });
+      } finally {
+        button.disabled = false;
+      }
+    }
+    document.getElementById("refresh").addEventListener("click", loadData);
+    loadData();
+    window.setInterval(loadData, 300000);
   </script>
 </body>
 </html>
-
