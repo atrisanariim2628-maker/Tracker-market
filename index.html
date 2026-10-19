@@ -217,6 +217,7 @@
 
     const numberFormat = new Intl.NumberFormat("en-IN", { maximumFractionDigits: 2 });
     const timeFormat = new Intl.DateTimeFormat("en-IN", { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit", hour12: true });
+    const refreshTimeFormat = new Intl.DateTimeFormat("en-IN", { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true });
     function displayNumber(value, decimals) {
       if (typeof value !== "number" || !Number.isFinite(value)) return "Unavailable";
       return new Intl.NumberFormat("en-IN", { minimumFractionDigits: decimals, maximumFractionDigits: decimals }).format(value);
@@ -236,6 +237,9 @@
     function checkedTime(iso) {
       if (!iso) return "Unavailable";
       try { return timeFormat.format(new Date(iso)) + " IST"; } catch (_) { return "Unavailable"; }
+    }
+    function refreshedTime() {
+      return refreshTimeFormat.format(new Date()) + " IST";
     }
     function render(data) {
       const rbi = data.rbi;
@@ -291,26 +295,28 @@
 
       const anyValue = rbi && (typeof policy.repo === "number" || typeof fx.usdInr === "number" || typeof market.nifty === "number");
       const status = document.getElementById("feed-status");
-      status.textContent = anyValue ? "RBI feed connected · checked " + checked : "Official feeds unavailable · retrying";
+      status.textContent = anyValue ? "RBI feed connected · refreshed " + refreshedTime() : "Official feeds unavailable · checked " + refreshedTime() + " · retrying";
       status.classList.toggle("ready", Boolean(anyValue));
     }
 
     async function loadData() {
       const button = document.getElementById("refresh");
       button.disabled = true;
+      button.textContent = "Refreshing…";
       try {
         const response = await fetch("/api/live", { cache: "no-store" });
         if (!response.ok) throw new Error("Live data endpoint returned " + response.status);
         render(await response.json());
       } catch (error) {
         const status = document.getElementById("feed-status");
-        status.textContent = "Feed unavailable · retrying";
+        status.textContent = "Feed unavailable · checked " + refreshedTime() + " · retrying";
         status.classList.remove("ready");
         document.querySelectorAll(".metric-value").forEach(function (node) {
           if (node.textContent === "—") node.textContent = "Unavailable";
         });
       } finally {
         button.disabled = false;
+        button.textContent = "↻ Refresh data";
       }
     }
     document.getElementById("refresh").addEventListener("click", loadData);
