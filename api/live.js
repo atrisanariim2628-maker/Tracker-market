@@ -92,10 +92,15 @@ module.exports = async function handler(_request, response) {
     const rates = text.slice(start >= 0 ? start : 0, end > start ? end : undefined);
     const marketStart = rates.indexOf("Capital Market");
     const market = rates.slice(marketStart >= 0 ? marketStart : 0);
-    const gsecLabel = firstMatch(rates, /(6\.\d+%\s*GS\s*203\d)\s*[:|]?\s*[0-9.]+%/i);
-    const gsec = gsecLabel ? numberAfter(rates, gsecLabel, true) : null;
+    const bondRows = Array.from(rates.matchAll(/([0-9]+(?:\\.[0-9]+)?%)\\s*GS\\s*(20\\d{2})\\s*[:|]\\s*([0-9]+(?:\\.[0-9]+)?)\\s*%/gi));
+    const targetMaturity = new Date().getUTCFullYear() + 10;
+    const bondRow = bondRows
+      .filter((row) => Number(row[2]) >= new Date().getUTCFullYear() + 8)
+      .sort((left, right) => Math.abs(Number(left[2]) - targetMaturity) - Math.abs(Number(right[2]) - targetMaturity))[0];
+    const gsecLabel = bondRow ? bondRow[1] + " GS " + bondRow[2] : null;
+    const gsec = bondRow ? Number(bondRow[3]) : null;
     data.rbi = {
-      updated: firstMatch(text, /Website last updated date:\s*([^|]+?)(?=\s+(?:Supports:|$))/i),
+      updated: firstMatch(text, /Website last updated date:\\s*([^|]+?)(?=\\s+(?:Supports:|$))\s*([^|]+?)(?=\s+(?:Supports:|$))/i),
       fxAsOf: firstMatch(rates, /As at\s+([^)]{1,100})\)/i),
       marketAsOf: firstMatch(market, /\*\s*as on\s+([A-Za-z]+\s+\d{1,2},?\s+\d{4})/i),
       yieldAsOf: firstMatch(rates, /#\s*as on\s+([A-Za-z]+\s+\d{1,2},?\s+\d{4})/i),
