@@ -6,7 +6,7 @@ Vercel serves the dashboard from `index.html` and its data endpoint from `api/li
 
 - RBI current rates page: policy rates, reserve ratios, the FBIL USD/INR reference rate, government-security yields, and the latest published Nifty/Sensex values.
 - MoSPI GDP and CPI pages: the endpoint requests these official pages, but their headline values are rendered through interactive page widgets that the serverless parser cannot read. The dashboard shows “Unavailable” for those two cards and links directly to the current MoSPI pages instead of showing old examples.
-- TradingView charts: USD/INR and India 10-year government-bond yield are embedded; the Nifty chart links to TradingView because its index cannot be embedded in this page.
+- TradingView charts: USD/INR is embedded. Nifty and India 10-year government-bond charts link to TradingView because those symbols cannot be embedded on this page.
 
 The browser requests data on page load and every five minutes. The endpoint caches source responses for five minutes and shows publisher dates where available. RBI figures have different update schedules; USD/INR is a daily reference rate, GDP is quarterly, and CPI is monthly. This is not a tick-by-tick NSE feed.
 
