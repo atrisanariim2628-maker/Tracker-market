@@ -31,7 +31,7 @@
     .metric,.panel{border:1px solid var(--border);border-radius:14px;background:linear-gradient(145deg,#141e2c,#101722);box-shadow:0 12px 30px #00000015}
     .metric{padding:16px 17px;min-height:122px}.metric-label{gap:7px;color:var(--muted);font-size:12px}
     .metric-value{margin-top:12px;font-size:clamp(21px,2vw,27px);font-weight:750;letter-spacing:-.035em;font-variant-numeric:tabular-nums}
-    .metric-sub{margin-top:3px;color:var(--muted);font-size:11px}
+    .metric-sub{margin-top:3px;color:var(--muted);font-size:11px}.metric-link{display:inline-block;margin-top:5px;font-size:11px}
     .tabs{display:flex;gap:6px;overflow-x:auto;margin:23px 0 16px;padding:5px;border:1px solid var(--border);border-radius:12px;background:#0e151f;scrollbar-width:thin}
     .tab{flex:0 0 auto;padding:10px 14px;border:0;border-radius:8px;color:#aab7c7;background:transparent;cursor:pointer;font-size:13px;font-weight:650}
     .tab:hover{color:var(--text);background:#182331}.tab[aria-selected=true]{color:#09150f;background:var(--green)}
@@ -47,7 +47,7 @@
     th{padding:10px 12px;color:#92a1b4;background:#0e151f;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
     td{padding:11px 12px;border-bottom:1px solid #222d3c;color:#dce4ed}
     tr:last-child td{border-bottom:0}.number{font-variant-numeric:tabular-nums}
-    .chart-panel{min-height:390px}.chart-frame{height:315px}
+    .chart-panel{min-height:390px}.chart-frame{height:315px}.chart-link-box{display:grid;align-content:center;gap:12px;min-height:315px;padding:24px;border:1px dashed #435166;border-radius:10px;background:#0e151f}.chart-link-box p{margin:0;color:var(--muted);font-size:13px}.chart-link-button{justify-self:start;padding:10px 13px;border:1px solid #315340;border-radius:8px;color:#d8ffeb;background:#15281f;font-size:12px;font-weight:700;text-decoration:none}
     .source-note{margin:12px 0 0;color:var(--muted);font-size:11px}
     .source-list{display:grid;gap:12px}
     .source-card{padding:15px;border:1px solid var(--border);border-radius:11px;background:#101722}
@@ -77,8 +77,8 @@
 
     <section class="metrics" aria-label="Latest official indicators">
       <article class="metric"><div class="metric-label">🏦 RBI repo rate</div><div class="metric-value" id="repo-card">—</div><div class="metric-sub" id="repo-sub">Waiting for RBI</div></article>
-      <article class="metric"><div class="metric-label">📈 Real GDP growth</div><div class="metric-value" id="gdp-card">—</div><div class="metric-sub" id="gdp-sub">Waiting for MoSPI</div></article>
-      <article class="metric"><div class="metric-label">🧺 CPI inflation</div><div class="metric-value" id="cpi-card">—</div><div class="metric-sub" id="cpi-sub">Waiting for MoSPI</div></article>
+      <article class="metric"><div class="metric-label">📈 Real GDP growth</div><div class="metric-value" id="gdp-card">—</div><div class="metric-sub" id="gdp-sub">Waiting for MoSPI</div><a class="metric-link" href="https://mospi.gov.in/themes/product/6-gross-domestic-product" target="_blank" rel="noopener">Open MoSPI GDP ↗</a></article>
+      <article class="metric"><div class="metric-label">🧺 CPI inflation</div><div class="metric-value" id="cpi-card">—</div><div class="metric-sub" id="cpi-sub">Waiting for MoSPI</div><a class="metric-link" href="https://mospi.gov.in/themes/product/9-consumer-price-index-cpi" target="_blank" rel="noopener">Open MoSPI CPI ↗</a></article>
       <article class="metric"><div class="metric-label">💱 USD / INR</div><div class="metric-value" id="fx-card">—</div><div class="metric-sub" id="fx-sub">Waiting for RBI / FBIL</div></article>
       <article class="metric"><div class="metric-label">📊 Government bond yield</div><div class="metric-value" id="yield-card">—</div><div class="metric-sub" id="yield-sub">Waiting for RBI</div></article>
     </section>
@@ -130,20 +130,25 @@
               <tr><td>CPI-based inflation</td><td class="number" id="cpi-value">—</td><td id="cpi-period">—</td></tr>
             </tbody>
           </table></div>
-          <p class="source-note">These are release-based statistics, not continuously updated market prices. See the <a href="https://mospi.gov.in/themes/product/6-gross-domestic-product" target="_blank" rel="noopener">MoSPI GDP page</a> and <a href="https://mospi.gov.in/themes/product/9-consumer-price-index-cpi" target="_blank" rel="noopener">MoSPI CPI page</a>.</p>
+          <p class="source-note">These are release-based statistics, not continuously updated market prices. If the embedded MoSPI value cannot be read here, use the publisher pages: <a href="https://mospi.gov.in/themes/product/6-gross-domestic-product" target="_blank" rel="noopener">MoSPI GDP page</a> and <a href="https://mospi.gov.in/themes/product/9-consumer-price-index-cpi" target="_blank" rel="noopener">MoSPI CPI page</a>.</p>
         </article>
       </div>
 
       <div class="grid-2">
         <article class="panel chart-panel">
           <div class="panel-heading"><h3>Nifty 50 chart</h3><span class="tag">TradingView</span></div>
-          <div class="chart-frame"><div class="tradingview-widget-container" style="height:100%;width:100%"><div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div><div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/symbols/NSE-NIFTY/" rel="noopener nofollow" target="_blank">NIFTY chart</a> by TradingView</div><script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>{"autosize":true,"symbol":"NSE:NIFTY","interval":"D","timezone":"Asia/Kolkata","theme":"dark","style":"1","withdateranges":true,"hide_side_toolbar":true,"allow_symbol_change":false,"save_image":false,"calendar":false,"locale":"en","backgroundColor":"#111925","gridColor":"rgba(42,53,69,0.45)","support_host":"https://www.tradingview.com"}</script></div></div>
-          <p class="source-note">Chart feed availability and delay are determined by TradingView and the exchange.</p>
+          <div class="chart-link-box"><p>The RBI snapshot above shows the latest published Nifty 50 close. TradingView does not allow this index in its embedded chart on this page, so open its chart directly.</p><a class="chart-link-button" href="https://www.tradingview.com/symbols/NSE-NIFTY/" target="_blank" rel="noopener">Open Nifty 50 on TradingView ↗</a></div>
+          <p class="source-note">The linked chart’s exchange data may be delayed depending on your market-data permissions.</p>
         </article>
         <article class="panel chart-panel">
           <div class="panel-heading"><h3>USD / INR chart</h3><span class="tag">TradingView</span></div>
           <div class="chart-frame"><div class="tradingview-widget-container" style="height:100%;width:100%"><div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div><div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/symbols/FX_IDC-USDINR/" rel="noopener nofollow" target="_blank">USDINR chart</a> by TradingView</div><script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>{"autosize":true,"symbol":"FX_IDC:USDINR","interval":"D","timezone":"Asia/Kolkata","theme":"dark","style":"1","withdateranges":true,"hide_side_toolbar":true,"allow_symbol_change":false,"save_image":false,"calendar":false,"locale":"en","backgroundColor":"#111925","gridColor":"rgba(42,53,69,0.45)","support_host":"https://www.tradingview.com"}</script></div></div>
-          <p class="source-note">RBI’s FBIL value above is a published reference rate; this chart has its own provider feed.</p>
+          <p class="source-note">RBI’s FBIL value above is a daily reference rate; this chart uses TradingView’s feed.</p>
+        </article>
+        <article class="panel chart-panel">
+          <div class="panel-heading"><h3>India 10-year government bond yield</h3><span class="tag">TradingView</span></div>
+          <div class="chart-frame"><div class="tradingview-widget-container" style="height:100%;width:100%"><div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div><div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/symbols/TVC-IN10Y/" rel="noopener nofollow" target="_blank">India 10Y yield chart</a> by TradingView</div><script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>{"autosize":true,"symbol":"TVC:IN10Y","interval":"D","timezone":"Asia/Kolkata","theme":"dark","style":"1","withdateranges":true,"hide_side_toolbar":true,"allow_symbol_change":false,"save_image":false,"calendar":false,"locale":"en","backgroundColor":"#111925","gridColor":"rgba(42,53,69,0.45)","support_host":"https://www.tradingview.com"}</script></div></div>
+          <p class="source-note">The RBI snapshot uses the nearest government-security maturity to ten years and shows RBI’s published yield date.</p>
         </article>
       </div>
     </section>
@@ -286,7 +291,7 @@
 
       const anyValue = rbi && (typeof policy.repo === "number" || typeof fx.usdInr === "number" || typeof market.nifty === "number");
       const status = document.getElementById("feed-status");
-      status.textContent = anyValue ? "Official sources connected · checked " + checked : "Official feeds unavailable · retrying";
+      status.textContent = anyValue ? "RBI feed connected · checked " + checked : "Official feeds unavailable · retrying";
       status.classList.toggle("ready", Boolean(anyValue));
     }
 
