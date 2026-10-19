@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1018">
+  <meta name="description" content="India macroeconomic and financial dashboard demo with static sample data.">
+  <title>India Macro &amp; Markets Dashboard</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --page: #0b1018;
+      --panel: #111925;
+      --panel-raised: #151f2d;
+      --border: #263244;
+      --text: #edf2f8;
+      --muted: #9aa8b9;
+      --green: #48d597;
+      --blue: #72a7ff;
+      --amber: #efbd62;
+      --red: #ff8585;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: radial-gradient(ellipse at 50% -20%, #172337 0, var(--page) 56%);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+    button, select { font: inherit; }
+    .shell { max-width: 1440px; margin: 0 auto; padding: 28px clamp(16px, 3vw, 42px) 52px; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 28px; }
+    .brand { display: flex; align-items: center; gap: 13px; min-width: 0; }
+    .brand-mark { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 14px; background: #18362f; color: var(--green); font-size: 22px; }
+    .brand-name { color: var(--muted); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
+    .brand strong { display: block; font-size: 16px; letter-spacing: .01em; }
+    .snapshot { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 999px; color: #c7d2e1; background: #111925; font-size: 12px; white-space: nowrap; }
+    .snapshot::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 12px #efbd6280; }
+    .intro { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin: 0 0 22px; }
+    .eyebrow { margin: 0 0 7px; color: var(--green); font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+    h1 { margin: 0; font-size: clamp(26px, 3vw, 36px); letter-spacing: -.04em; line-height: 1.14; }
+    .subtitle { margin: 9px 0 0; color: var(--muted); font-size: 14px; }
+    .select-wrap { display: grid; gap: 6px; min-width: 230px; color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+    select { width: 100%; padding: 10px 36px 10px 12px; border: 1px solid var(--border); border-radius: 9px; color: var(--text); background: var(--panel); text-transform: none; letter-spacing: 0; font-size: 13px; }
+    .disclaimer { display: flex; align-items: flex-start; gap: 10px; margin: 0 0 20px; padding: 12px 14px; border: 1px solid #53442b; border-radius: 10px; color: #e7d4ae; background: #241e14; font-size: 12px; }
+    .disclaimer strong { color: #ffe1a3; }
+    .metrics { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+    .metric, .panel { border: 1px solid var(--border); border-radius: 14px; background: linear-gradient(145deg, #141e2c, #101722); box-shadow: 0 12px 30px #00000015; }
+    .metric { padding: 16px 17px; min-height: 116px; }
+    .metric-label { display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: 12px; }
+    .metric-value { margin-top: 13px; font-size: clamp(21px, 2vw, 27px); font-weight: 700; letter-spacing: -.035em; }
+    .metric-change { margin-top: 3px; color: var(--green); font-size: 11px; }
+    .metric-change.neutral { color: var(--amber); }
+    .tabs { display: flex; gap: 6px; overflow-x: auto; margin: 24px 0 16px; padding: 5px; border: 1px solid var(--border); border-radius: 12px; background: #0e151f; scrollbar-width: thin; }
+    .tab { flex: 0 0 auto; padding: 10px 14px; border: 0; border-radius: 8px; color: #aab7c7; background: transparent; cursor: pointer; font-size: 13px; font-weight: 650; transition: background .15s ease, color .15s ease; }
+    .tab:hover { color: var(--text); background: #182331; }
+    .tab[aria-selected="true"] { color: #09150f; background: var(--green); }
+    .tab-panel[hidden] { display: none; }
+    .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin: 20px 0 14px; }
+    h2 { margin: 0; font-size: 19px; letter-spacing: -.02em; }
+    h3 { margin: 0; font-size: 14px; }
+    .section-note { color: var(--muted); font-size: 12px; }
+    .panel { padding: 18px; }
+    .panel-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+    .tag { padding: 4px 8px; border: 1px solid #315340; border-radius: 999px; color: var(--green); background: #15281f; font-size: 10px; font-weight: 700; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
+    th { padding: 10px 12px; color: #92a1b4; background: #0e151f; font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    td { padding: 11px 12px; border-bottom: 1px solid #222d3c; color: #dce4ed; }
+    tr:last-child td { border-bottom: 0; }
+    .number { font-variant-numeric: tabular-nums; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 14px; }
+    .chart { width: 100%; min-height: 215px; margin-top: 5px; }
+    .chart text { fill: #8292a7; font: 10px ui-sans-serif, system-ui, sans-serif; }
+    .chart .gridline { stroke: #2a3545; stroke-width: 1; stroke-dasharray: 3 5; }
+    .chart .axis { stroke: #435166; stroke-width: 1; }
+    .chart .line { fill: none; stroke: var(--blue); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+    .chart .dot { fill: var(--blue); stroke: #111925; stroke-width: 3; }
+    .chart .bar { fill: #56cfa0; opacity: .88; }
+    .chart-legend { display: flex; align-items: center; gap: 7px; margin-top: 4px; color: var(--muted); font-size: 11px; }
+    .legend-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--blue); }
+    .legend-dot.green { background: var(--green); }
+    .two-col { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .stack { display: grid; gap: 14px; }
+    .scenario-box { margin-top: 16px; padding: 16px; border: 1px solid #315340; border-radius: 11px; background: #13251e; }
+    .scenario-box.warning { border-color: #5c4c2c; background: #282115; }
+    .scenario-box.caution { border-color: #603737; background: #291a1d; }
+    .scenario-box p { margin: 7px 0 0; color: #c1cece; font-size: 13px; }
+    .scenario-label { color: var(--green); font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .scenario-box.warning .scenario-label { color: var(--amber); }
+    .scenario-box.caution .scenario-label { color: var(--red); }
+    .status-pill { display: inline-flex; align-items: center; gap: 6px; color: #bfead5; white-space: nowrap; }
+    .status-pill.amber { color: #f3d493; }
+    .footer { display: flex; justify-content: space-between; gap: 14px; margin-top: 28px; padding-top: 16px; border-top: 1px solid var(--border); color: #7f8da0; font-size: 11px; }
+    @media (max-width: 980px) { .metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+    @media (max-width: 680px) {
+      .shell { padding-top: 18px; }
+      .intro { align-items: stretch; flex-direction: column; }
+      .select-wrap { min-width: 0; }
+      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .metric { padding: 14px; min-height: 106px; }
+      .grid-2, .two-col { grid-template-columns: 1fr; }
+      .snapshot { font-size: 10px; }
+      .section-heading { align-items: flex-start; flex-direction: column; }
+      .footer { flex-direction: column; }
+    }
+    @media (max-width: 390px) { .metrics { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">₹</div>
+        <div><div class="brand-name">India markets</div><strong>Macro intelligence</strong></div>
+      </div>
+      <div class="snapshot">Static snapshot · sample values</div>
+    </header>
+
+    <section class="intro" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow">Economy · Policy · Markets</p>
+        <h1 id="page-title">India Financial &amp; Macro Dashboard</h1>
+        <p class="subtitle">A visual overview of the indicators and scenarios in the supplied tracker.</p>
+      </div>
+      <label class="select-wrap" for="view-mode">Dashboard view
+        <select id="view-mode">
+          <option>Market overview</option>
+          <option>Predictive analytics &amp; decision engine</option>
+        </select>
+      </label>
+    </section>
+
+    <aside class="disclaimer" aria-label="Data note">
+      <span aria-hidden="true">ⓘ</span>
+      <span><strong>Sample data:</strong> values and outlook text are hard-coded examples from the original Python file. This page has no live market feed or connected prediction model; verify figures with official sources before relying on them.</span>
+    </aside>
+
+    <section class="metrics" aria-label="Headline indicators">
+      <article class="metric"><div class="metric-label">🏦 RBI repo rate</div><div class="metric-value">5.50%</div><div class="metric-change neutral">+0.25% · sample note</div></article>
+      <article class="metric"><div class="metric-label">📈 FY GDP growth</div><div class="metric-value">7.1%</div><div class="metric-change">FY27 forecast · sample</div></article>
+      <article class="metric"><div class="metric-label">📊 10Y G-Sec yield</div><div class="metric-value">7.36%</div><div class="metric-change neutral">+0.04% WoW · sample</div></article>
+      <article class="metric"><div class="metric-label">🧺 CPI inflation</div><div class="metric-value">4.2%</div><div class="metric-change">Sample value</div></article>
+      <article class="metric"><div class="metric-label">💱 USD / INR</div><div class="metric-value">83.65</div><div class="metric-change">−0.12 today · sample</div></article>
+    </section>
+
+    <nav class="tabs" role="tablist" aria-label="Dashboard sections">
+      <button class="tab" id="tab-macro" role="tab" aria-selected="true" aria-controls="panel-macro">Macro &amp; policy rates</button>
+      <button class="tab" id="tab-tax" role="tab" aria-selected="false" aria-controls="panel-tax" tabindex="-1">Tax, GST &amp; duties</button>
+      <button class="tab" id="tab-markets" role="tab" aria-selected="false" aria-controls="panel-markets" tabindex="-1">Funds &amp; bonds</button>
+      <button class="tab" id="tab-outlook" role="tab" aria-selected="false" aria-controls="panel-outlook" tabindex="-1">Economic scenarios</button>
+    </nav>
+
+    <section class="tab-panel" id="panel-macro" role="tabpanel" aria-labelledby="tab-macro">
+      <div class="section-heading"><div><p class="eyebrow">Central bank</p><h2>RBI key policy rates</h2></div><div class="section-note">Values shown as supplied in the Python tracker</div></div>
+      <div class="panel">
+        <div class="table-wrap"><table>
+          <thead><tr><th>Indicator</th><th>Rate</th><th>Trend / stance</th><th>Last revised</th></tr></thead>
+          <tbody>
+            <tr><td>Repo Rate</td><td class="number">5.50%</td><td>Neutral / Tightening</td><td>October 2026</td></tr>
+            <tr><td>Reverse Repo Rate</td><td class="number">3.35%</td><td>Accommodative</td><td>June 2024</td></tr>
+            <tr><td>Standing Deposit Facility (SDF)</td><td class="number">5.25%</td><td>Neutral</td><td>October 2024</td></tr>
+            <tr><td>Cash Reserve Ratio (CRR)</td><td class="number">4.50%</td><td>Stable</td><td>February 2023</td></tr>
+            <tr><td>Statutory Liquidity Ratio (SLR)</td><td class="number">18.00%</td><td>Stable</td><td>June 2020</td></tr>
+            <tr><td>Bank Rate</td><td class="number">5.75%</td><td>Tightening</td><td>October 2026</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+      <div class="grid-2">
+        <article class="panel">
+          <div class="panel-heading"><h3>Quarterly GDP growth trend</h3><span class="tag">Percent</span></div>
+          <svg class="chart" viewBox="0 0 540 235" role="img" aria-label="Sample quarterly GDP growth line chart">
+            <line class="gridline" x1="46" y1="38" x2="520" y2="38"/><line class="gridline" x1="46" y1="88" x2="520" y2="88"/><line class="gridline" x1="46" y1="138" x2="520" y2="138"/><line class="axis" x1="46" y1="188" x2="520" y2="188"/>
+            <text x="9" y="42">7.5</text><text x="9" y="92">7.0</text><text x="9" y="142">6.5</text><text x="9" y="192">6.0</text>
+            <polyline class="line" points="55,118 120,138 185,168 250,48 315,108 380,88 445,78 510,68"/>
+            <circle class="dot" cx="55" cy="118" r="5"/><circle class="dot" cx="120" cy="138" r="5"/><circle class="dot" cx="185" cy="168" r="5"/><circle class="dot" cx="250" cy="48" r="5"/><circle class="dot" cx="315" cy="108" r="5"/><circle class="dot" cx="380" cy="88" r="5"/><circle class="dot" cx="445" cy="78" r="5"/><circle class="dot" cx="510" cy="68" r="5"/>
+            <text x="43" y="212">Q1 FY25</text><text x="108" y="212">Q2 FY25</text><text x="173" y="212">Q3 FY25</text><text x="238" y="212">Q4 FY25</text><text x="303" y="212">Q1 FY26</text><text x="368" y="212">Q2 FY26</text><text x="433" y="212">Q3 FY26</text><text x="487" y="212">Q4*</text>
+          </svg>
+          <div class="chart-legend"><span class="legend-dot"></span> GDP growth · sample series</div>
+        </article>
+        <article class="panel">
+          <div class="panel-heading"><h3>CPI inflation trend</h3><span class="tag">Percent</span></div>
+          <svg class="chart" viewBox="0 0 540 235" role="img" aria-label="Sample quarterly CPI inflation bar chart">
+            <line class="gridline" x1="46" y1="38" x2="520" y2="38"/><line class="gridline" x1="46" y1="75" x2="520" y2="75"/><line class="gridline" x1="46" y1="113" x2="520" y2="113"/><line class="gridline" x1="46" y1="150" x2="520" y2="150"/><line class="axis" x1="46" y1="188" x2="520" y2="188"/>
+            <text x="9" y="42">5.5</text><text x="9" y="79">5.0</text><text x="9" y="117">4.5</text><text x="9" y="154">4.0</text><text x="9" y="192">3.5</text>
+            <rect class="bar" x="58" y="68" width="34" height="120" rx="4"/><rect class="bar" x="117" y="90" width="34" height="98" rx="4"/><rect class="bar" x="176" y="128" width="34" height="60" rx="4"/><rect class="bar" x="235" y="173" width="34" height="15" rx="4"/><rect class="bar" x="294" y="106" width="34" height="82" rx="4"/><rect class="bar" x="353" y="143" width="34" height="45" rx="4"/><rect class="bar" x="412" y="158" width="34" height="30" rx="4"/><rect class="bar" x="471" y="136" width="34" height="52" rx="4"/>
+            <text x="49" y="212">Q1 FY25</text><text x="108" y="212">Q2 FY25</text><text x="167" y="212">Q3 FY25</text><text x="226" y="212">Q4 FY25</text><text x="285" y="212">Q1 FY26</text><text x="344" y="212">Q2 FY26</text><text x="403" y="212">Q3 FY26</text><text x="462" y="212">Q4*</text>
+          </svg>
+          <div class="chart-legend"><span class="legend-dot green"></span> CPI inflation · sample series</div>
+        </article>
+      </div>
+    </section>
+
+    <section class="tab-panel" id="panel-tax" role="tabpanel" aria-labelledby="tab-tax" hidden>
+      <div class="section-heading"><div><p class="eyebrow">Reference tables</p><h2>Tax slabs &amp; GST categories</h2></div><div class="section-note">Illustrative values from the supplied tracker; check current rules</div></div>
+      <div class="two-col">
+        <article class="panel"><div class="panel-heading"><h3>Goods and Services Tax (GST)</h3><span class="tag">Sample categories</span></div><div class="table-wrap"><table><thead><tr><th>Slab</th><th>Category examples</th></tr></thead><tbody>
+          <tr><td class="number">0% (Nil)</td><td>Unbranded food grains, milk, salt</td></tr><tr><td class="number">5%</td><td>Edible oil, tea, sugar, transport</td></tr><tr><td class="number">12%</td><td>Processed food, computers, books</td></tr><tr><td class="number">18%</td><td>Toothpaste, IT services, capital goods</td></tr><tr><td class="number">28%</td><td>Automobiles, luxury items, aerated drinks</td></tr>
+        </tbody></table></div></article>
+        <article class="panel"><div class="panel-heading"><h3>Income tax · new regime</h3><span class="tag">Sample slabs</span></div><div class="table-wrap"><table><thead><tr><th>Income range</th><th>Tax rate</th></tr></thead><tbody>
+          <tr><td>Up to ₹3,00,000</td><td>Nil</td></tr><tr><td>₹3,00,001 – ₹7,00,000</td><td>5%</td></tr><tr><td>₹7,00,001 – ₹10,00,000</td><td>10%</td></tr><tr><td>₹10,00,001 – ₹12,00,000</td><td>15%</td></tr><tr><td>₹12,00,001 – ₹15,00,000</td><td>20%</td></tr><tr><td>Above ₹15,00,000</td><td>30%</td></tr>
+        </tbody></table></div></article>
+      </div>
+    </section>
+
+    <section class="tab-panel" id="panel-markets" role="tabpanel" aria-labelledby="tab-markets" hidden>
+      <div class="section-heading"><div><p class="eyebrow">Market benchmarks</p><h2>Mutual funds &amp; fixed income</h2></div><div class="section-note">Returns and yields are hard-coded examples, not current quotes</div></div>
+      <div class="two-col">
+        <article class="panel"><div class="panel-heading"><h3>Fund categories</h3><span class="tag">3Y return · sample</span></div><div class="table-wrap"><table><thead><tr><th>Category</th><th>Benchmark</th><th>Avg 3Y return</th></tr></thead><tbody>
+          <tr><td>Large Cap</td><td>Nifty 50</td><td class="number">14.2%</td></tr><tr><td>Mid Cap</td><td>Nifty Midcap 150</td><td class="number">22.5%</td></tr><tr><td>Small Cap</td><td>Nifty Smallcap 250</td><td class="number">26.8%</td></tr><tr><td>Flexi Cap</td><td>Nifty 500</td><td class="number">18.4%</td></tr><tr><td>Liquid Funds</td><td>CRISIL Liquid Fund</td><td class="number">7.1%</td></tr><tr><td>Arbitrage Funds</td><td>Nifty Arbitrage</td><td class="number">7.6%</td></tr>
+        </tbody></table></div></article>
+        <article class="panel"><div class="panel-heading"><h3>Fixed-income instruments</h3><span class="tag">Yield · sample</span></div><div class="table-wrap"><table><thead><tr><th>Instrument</th><th>Yield / rate</th><th>Risk profile</th></tr></thead><tbody>
+          <tr><td>10-Year Government Bond</td><td class="number">7.36%</td><td>Sovereign</td></tr><tr><td>Corporate AAA Bonds (5Y)</td><td class="number">7.85%</td><td>Very low</td></tr><tr><td>Tax-Free Bonds (PSU)</td><td class="number">5.50%</td><td>Low</td></tr><tr><td>RBI Floating Rate Savings Bonds</td><td class="number">8.05%</td><td>Sovereign</td></tr><tr><td>LIC Endowment Plan (Avg Yield)</td><td class="number">6.00%</td><td>Low / guaranteed*</td></tr>
+        </tbody></table></div></article>
+      </div>
+    </section>
+
+    <section class="tab-panel" id="panel-outlook" role="tabpanel" aria-labelledby="tab-outlook" hidden>
+      <div class="section-heading"><div><p class="eyebrow">Scenario explorer</p><h2>Economic indicators &amp; policy outlook</h2></div><div class="section-note">Static scenarios from the original tracker; no model is connected</div></div>
+      <div class="panel">
+        <div class="panel-heading"><h3>Indicator snapshot</h3><span class="tag">Sample values</span></div>
+        <div class="table-wrap"><table><thead><tr><th>Economic indicator</th><th>Value</th><th>Signal status</th></tr></thead><tbody>
+          <tr><td>Credit Growth (YoY)</td><td class="number">14.2%</td><td><span class="status-pill">● Expansion</span></td></tr><tr><td>Deposit Growth (YoY)</td><td class="number">11.1%</td><td><span class="status-pill amber">● Moderate</span></td></tr><tr><td>PMI Manufacturing</td><td class="number">57.8</td><td><span class="status-pill">● Strong expansion</span></td></tr><tr><td>PMI Services</td><td class="number">60.2</td><td><span class="status-pill">● Robust</span></td></tr><tr><td>Forex Reserves</td><td class="number">$682B</td><td><span class="status-pill">● All-time high</span></td></tr><tr><td>GST Collections (Monthly Avg)</td><td class="number">₹1.85 Lakh Cr</td><td><span class="status-pill">● Strong tax buoyancy</span></td></tr>
+        </tbody></table></div>
+        <div class="grid-2" style="align-items:end">
+          <label class="select-wrap" for="scenario">Monetary policy scenario
+            <select id="scenario"><option value="hold">Baseline: repo rate hold at 5.50%</option><option value="hawkish">Hawkish pivot: +25 bps rate hike</option><option value="dovish">Dovish pivot: −25 bps rate cut</option></select>
+          </label>
+          <div id="scenario-output" class="scenario-box" aria-live="polite"><div class="scenario-label">Illustrative outlook</div><p>Steady credit expansion continues. Real estate and corporate capex remain resilient.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer"><span>India Macro &amp; Markets · Dashboard demo</span><span>* Figures and labels are reproduced from supplied code and have not been independently verified.</span></footer>
+  </main>
+  <script>
+    const tabs = [...document.querySelectorAll('[role="tab"]')];
+    const panels = [...document.querySelectorAll('[role="tabpanel"]')];
+    function activateTab(tab) {
+      tabs.forEach((item) => {
+        const active = item === tab;
+        item.setAttribute('aria-selected', String(active));
+        item.tabIndex = active ? 0 : -1;
+      });
+      panels.forEach((panel) => { panel.hidden = panel.id !== tab.getAttribute('aria-controls'); });
+    }
+    tabs.forEach((tab, index) => {
+      tab.addEventListener('click', () => activateTab(tab));
+      tab.addEventListener('keydown', (event) => {
+        if (!['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(event.key)) return;
+        event.preventDefault();
+        const next = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : (index + (event.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length;
+        tabs[next].focus();
+        activateTab(tabs[next]);
+      });
+    });
+    const scenario = document.querySelector('#scenario');
+    const output = document.querySelector('#scenario-output');
+    const outlooks = {
+      hold: { className: '', text: 'Steady credit expansion continues. Real estate and corporate capex remain resilient.' },
+      hawkish: { className: 'warning', text: 'Cost of capital increases. The original tracker describes a possible short-term correction in high-multiple growth stocks.' },
+      dovish: { className: 'caution', text: 'Liquidity easing may support risk appetite. This is a static scenario description, not a forecast.' }
+    };
+    scenario.addEventListener('change', () => {
+      const outlook = outlooks[scenario.value];
+      output.className = `scenario-box ${outlook.className}`;
+      output.innerHTML = `<div class="scenario-label">Illustrative outlook</div><p>${outlook.text}</p>`;
+    });
+  </script>
+</body>
+</html>
+
