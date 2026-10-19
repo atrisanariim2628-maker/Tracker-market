@@ -1,18 +1,18 @@
 # India Macro & Markets Dashboard
 
-Vercel serves the dashboard from `index.html` and its live-data endpoint from `api/live.js`. The original Streamlit file, `tracker.py`, remains in the repository as the supplied source.
+Vercel serves the dashboard from `index.html` and its data endpoint from `api/live.js`. The original Streamlit file, `tracker.py`, remains in the repository as the supplied source.
 
-## Data feeds
+## Data sources and coverage
 
-- RBI current rates page: policy rates, reserve ratios, the FBIL USD/INR reference rate, selected government-security yields, and the latest published Nifty/Sensex values.
-- MoSPI product pages: latest real GDP growth rate and CPI-based inflation.
-- TradingView widgets: Nifty 50 and USD/INR charts. Exchange data may be delayed depending on market-data permissions.
+- RBI current rates page: policy rates, reserve ratios, the FBIL USD/INR reference rate, government-security yields, and the latest published Nifty/Sensex values.
+- MoSPI GDP and CPI pages: the endpoint requests these official pages, but their headline values are rendered through interactive page widgets that the serverless parser cannot read. The dashboard shows “Unavailable” for those two cards and links directly to the current MoSPI pages instead of showing old examples.
+- TradingView charts: USD/INR and India 10-year government-bond yield are embedded; the Nifty chart links to TradingView because its index cannot be embedded in this page.
 
-The browser checks the endpoint on page load and every five minutes. The endpoint caches source responses for five minutes and includes the publisher's dates where available. RBI figures are published at different frequencies; USD/INR is a daily reference rate, GDP is quarterly, and CPI is monthly. This is not a tick-by-tick trading feed.
+The browser requests data on page load and every five minutes. The endpoint caches source responses for five minutes and shows publisher dates where available. RBI figures have different update schedules; USD/INR is a daily reference rate, GDP is quarterly, and CPI is monthly. This is not a tick-by-tick NSE feed.
 
-When a source is unavailable or its value cannot be parsed, the dashboard shows “Unavailable” rather than falling back to sample numbers. The tax, mutual-fund category-return and scenario examples from the original page were removed; links point to the relevant official references instead.
+The old tax examples, mutual-fund category-return averages, indicator samples, and scenario text were removed. Links point to the relevant official references instead.
 
-No API keys or environment variables are required for these public pages. For licensed real-time NSE data or live user-specific fund returns, connect an authorized provider and its credentials separately.
+No API keys or environment variables are required for the RBI data. Licensed real-time NSE data or user-specific fund returns require an authorized provider and credentials.
 
 ## Deploy on Vercel
 
