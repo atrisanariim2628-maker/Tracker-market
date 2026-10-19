@@ -4,8 +4,8 @@ const CPI_URL = "https://mospi.gov.in/themes/product/9-consumer-price-index-cpi"
 
 function cleanText(html) {
   return html
-    .replace(/<(script|style|noscript)[^>]*>[\\s\\S]*?<\\/\\1>/gi, " ")
-    .replace(/<\\/(?:td|th|tr|p|div|h[1-6]|li|section|article|br|main|span)>/gi, " ")
+    .replace(/<(script|style|noscript)[^>]*>[\s\S]*?<\/\1>/gi, " ")
+    .replace(/<\/(?:td|th|tr|p|div|h[1-6]|li|section|article|br|main|span)>/gi, " ")
     .replace(/<[^>]*>/g, " ")
     .replace(/&nbsp;|&#160;|&#xA0;/gi, " ")
     .replace(/&amp;/gi, "&")
@@ -13,8 +13,8 @@ function cleanText(html) {
     .replace(/&mdash;|&#8212;/gi, "—")
     .replace(/&#39;|&apos;/gi, "'")
     .replace(/&quot;/gi, '"')
-    .replace(/&#(\\d+);/g, (_, code) => String.fromCharCode(Number(code)))
-    .replace(/\\s+/g, " ")
+    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)))
+    .replace(/\s+/g, " ")
     .trim();
 }
 
@@ -37,9 +37,11 @@ async function fetchPage(url) {
 }
 
 function numberAfter(text, label, percent = false) {
-  const escaped = label.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\$&");
-  const suffix = percent ? "\\\\s*%" : "";
-  const match = text.match(new RegExp(escaped + "\\\\s*(?:\\\\|\\\\s*)?:?\\\\s*([0-9][0-9,]*(?:\\\\.[0-9]+)?)" + suffix, "i"));
+  const escaped = label.replace(/[.*+?^()|[\]\\]/g, "\\$&");
+  const match = text.match(new RegExp(
+    escaped + "\\s*(?:\\|\\s*)?:?\\s*([0-9][0-9,]*(?:\\.[0-9]+)?)" + (percent ? "\\s*%" : ""),
+    "i"
+  ));
   return match ? Number(match[1].replace(/,/g, "")) : null;
 }
 
@@ -47,8 +49,8 @@ function metricAfter(text, label) {
   const index = text.toLowerCase().indexOf(label.toLowerCase());
   if (index < 0) return { value: null, period: null };
   const section = text.slice(index, index + 320);
-  const valueMatch = section.match(/([0-9]+(?:\\.[0-9]+)?)\\s*%/);
-  const periodMatch = section.slice(label.length).match(/\\(([^()]{1,100})\\)/);
+  const valueMatch = section.match(/([0-9]+(?:\.[0-9]+)?)\s*%/);
+  const periodMatch = section.slice(label.length).match(/\(([^()]{1,100})\)/);
   return {
     value: valueMatch ? Number(valueMatch[1]) : null,
     period: periodMatch ? periodMatch[1].trim() : null
@@ -90,13 +92,13 @@ module.exports = async function handler(_request, response) {
     const rates = text.slice(start >= 0 ? start : 0, end > start ? end : undefined);
     const marketStart = rates.indexOf("Capital Market");
     const market = rates.slice(marketStart >= 0 ? marketStart : 0);
-    const gsecLabel = firstMatch(rates, /(6\\.\\d+%\\s*GS\\s*203\\d)\\s*[:|]?\\s*[0-9.]+%/i);
-    const gsec = gsecLabel ? numberAfter(rates, gsecLabel) : null;
+    const gsecLabel = firstMatch(rates, /(6\.\d+%\s*GS\s*203\d)\s*[:|]?\s*[0-9.]+%/i);
+    const gsec = gsecLabel ? numberAfter(rates, gsecLabel, true) : null;
     data.rbi = {
-      updated: firstMatch(text, /Website last updated date:\\s*([^|]+?)(?=\\s+(?:Supports:|$))/i),
-      fxAsOf: firstMatch(rates, /As at\\s+([^)]{1,100})\\)/i),
-      marketAsOf: firstMatch(market, /\\*\\s*as on\\s+([A-Za-z]+\\s+\\d{1,2},?\\s+\\d{4})/i),
-      yieldAsOf: firstMatch(rates, /#\\s*as on\\s+([A-Za-z]+\\s+\\d{1,2},?\\s+\\d{4})/i),
+      updated: firstMatch(text, /Website last updated date:\s*([^|]+?)(?=\s+(?:Supports:|$))/i),
+      fxAsOf: firstMatch(rates, /As at\s+([^)]{1,100})\)/i),
+      marketAsOf: firstMatch(market, /\*\s*as on\s+([A-Za-z]+\s+\d{1,2},?\s+\d{4})/i),
+      yieldAsOf: firstMatch(rates, /#\s*as on\s+([A-Za-z]+\s+\d{1,2},?\s+\d{4})/i),
       policy: {
         repo: numberAfter(rates, "Policy Repo Rate", true),
         sdf: numberAfter(rates, "Standing Deposit Facility Rate", true),
